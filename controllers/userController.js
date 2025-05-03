@@ -10,7 +10,7 @@ const createUser = async (req, res) => {
         connection = await db.getConnection();
 
         const result = await connection.execute(
-            `INSERT INTO users (name, email, age) 
+            `INSERT INTO USERS (name, email, age) 
              VALUES (:name, :email, :age) 
              RETURNING id INTO :id`,
             {
@@ -69,13 +69,13 @@ const getAllUsers = async (req, res) => {
         
         // Count total users
         const countResult = await connection.execute(
-            'SELECT COUNT(*) FROM users'
+            'SELECT COUNT(*) FROM USERS'
         );
         const totalUsers = countResult.rows[0][0];
         
         // Fetch paginated users
         const result = await connection.execute(
-            'SELECT id, name, email, age, created_at, updated_at FROM users ORDER BY id OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY',
+            'SELECT id, name, email, age, created_at, updated_at FROM USERS ORDER BY id OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY',
             { offset, limit },
             { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
@@ -119,7 +119,7 @@ const getUserById = async (req, res) => {
         connection = await db.getConnection();
 
         const result = await connection.execute(
-            'SELECT id, name, email, age, created_at, updated_at FROM users WHERE id = :id',
+            'SELECT id, name, email, age, created_at, updated_at FROM USERS WHERE id = :id',
             [id],
             { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
@@ -163,7 +163,7 @@ const updateUser = async (req, res) => {
         connection = await db.getConnection();
 
         const result = await connection.execute(
-            `UPDATE users 
+            `UPDATE USERS 
              SET name = :name, email = :email, age = :age 
              WHERE id = :id`,
             { name, email, age, id },
@@ -220,7 +220,7 @@ const deleteUser = async (req, res) => {
         connection = await db.getConnection();
 
         const result = await connection.execute(
-            'DELETE FROM users WHERE id = :id',
+            'DELETE FROM USERS WHERE id = :id',
             [id],
             { autoCommit: true }
         );

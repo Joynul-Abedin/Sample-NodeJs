@@ -23,36 +23,54 @@ GRANT CREATE PROCEDURE TO app_user;
 -- Switch to the new schema for the remaining operations
 ALTER SESSION SET CURRENT_SCHEMA = app_user;
 
--- Create users table if it doesn't exist
+-- Create Users table if it doesn't exist
 BEGIN
-   EXECUTE IMMEDIATE 'DROP TABLE users';
-EXCEPTION
-   WHEN OTHERS THEN
-      IF SQLCODE != -942 THEN
-         RAISE;
-      END IF;
-END;
-/
-
--- Create the users table
-CREATE TABLE users (
+  EXECUTE IMMEDIATE 'CREATE TABLE USERS (
     id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR2(100) NOT NULL,
     email VARCHAR2(100) NOT NULL UNIQUE,
-    age NUMBER CHECK (age >= 0 AND age <= 120),
+    age NUMBER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+  )';
+  DBMS_OUTPUT.PUT_LINE('USERS table created successfully');
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE = -955 THEN
+      DBMS_OUTPUT.PUT_LINE('USERS table already exists');
+    ELSE
+      RAISE;
+    END IF;
+END;
+/
 
 -- Create index on email for faster lookups
-CREATE INDEX idx_users_email ON users(email);
-
--- Add a trigger to update the updated_at timestamp
-CREATE OR REPLACE TRIGGER users_update_trigger
-BEFORE UPDATE ON users
-FOR EACH ROW
 BEGIN
+  EXECUTE IMMEDIATE 'CREATE INDEX idx_users_email ON USERS(email)';
+  DBMS_OUTPUT.PUT_LINE('Index created successfully');
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE = -1408 OR SQLCODE = -955 THEN
+      DBMS_OUTPUT.PUT_LINE('Index already exists');
+    ELSE
+      RAISE;
+    END IF;
+END;
+/
+
+-- Create a trigger to update the updated_at timestamp
+BEGIN
+  EXECUTE IMMEDIATE '
+  CREATE OR REPLACE TRIGGER users_update_trigger
+  BEFORE UPDATE ON USERS
+  FOR EACH ROW
+  BEGIN
     :NEW.updated_at := CURRENT_TIMESTAMP;
+  END;';
+  DBMS_OUTPUT.PUT_LINE('Trigger created successfully');
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error creating trigger: ' || SQLERRM);
 END;
 /
 
