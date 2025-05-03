@@ -1,0 +1,25 @@
+{
+    "env": {
+        "node": true,
+        "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 2021
+    },
+    "rules": {
+        "no-console": "warn",
+        "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
+        "no-var": "error",
+        "prefer-const": "error",
+        "semi": ["error", "always"],
+        "quotes": ["error", "single"],
+        "indent": ["error", 4],
+        "camelcase": "error",
+        "no-duplicate-imports": "error",
+        "no-eval": "error",
+        "no-implied-eval": "error",
+        "no-param-reassign": "error",
+        "no-return-await": "error"
+    }
+} 
