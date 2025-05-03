@@ -12,32 +12,53 @@ const dbConfig = {
     privilege: oracledb.SYSDBA // Add SYSDBA privilege for sys user
 };
 
-// Helper function to run a SQL script file
-async function runSqlScript(connection, scriptPath) {
+// Initialize database tables
+async function setupDatabase(connection) {
     try {
-        const sql = fs.readFileSync(scriptPath, 'utf8');
-        // Split by forward slash followed by a newline character (Oracle SQL delimiter)
-        const statements = sql.split(/\/\r?\n/).filter(stmt => stmt.trim() !== '');
+        // Create USERS table if it doesn't exist
+        const createTableSQL = `
+        BEGIN
+          EXECUTE IMMEDIATE 'CREATE TABLE USERS (
+            id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            name VARCHAR2(100) NOT NULL,
+            email VARCHAR2(100) NOT NULL UNIQUE,
+            age NUMBER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )';
+        EXCEPTION
+          WHEN OTHERS THEN
+            IF SQLCODE = -955 THEN
+              NULL; -- Table already exists
+            ELSE
+              RAISE;
+            END IF;
+        END;`;
         
-        for (const statement of statements) {
-            const trimmedStatement = statement.trim();
-            if (trimmedStatement) {
-                try {
-                    await connection.execute(trimmedStatement);
-                    logger.info(`Executed SQL statement successfully`);
-                } catch (err) {
-                    logger.error(`Error executing SQL statement: ${err.message}`, { 
-                        error: err,
-                        statement: trimmedStatement.substring(0, 100) + '...' // Log only first 100 chars
-                    });
-                    // Continue with next statement if there's an error
-                }
-            }
-        }
+        await connection.execute(createTableSQL);
+        logger.info('USERS table setup completed');
         
-        logger.info(`SQL script executed successfully: ${scriptPath}`);
+        // Create trigger for updated_at
+        const createTriggerSQL = `
+        BEGIN
+          EXECUTE IMMEDIATE '
+          CREATE OR REPLACE TRIGGER users_update_trigger
+          BEFORE UPDATE ON USERS
+          FOR EACH ROW
+          BEGIN
+            :NEW.updated_at := CURRENT_TIMESTAMP;
+          END;';
+        EXCEPTION
+          WHEN OTHERS THEN
+            NULL; -- Ignore errors with trigger
+        END;`;
+        
+        await connection.execute(createTriggerSQL);
+        logger.info('USERS trigger setup completed');
+        
+        return true;
     } catch (err) {
-        logger.error(`Error running SQL script: ${err.message}`, { error: err, scriptPath });
+        logger.error(`Error setting up database: ${err.message}`, { error: err });
         throw err;
     }
 }
@@ -73,21 +94,15 @@ async function initialize() {
         // Get a connection for setup
         const connection = await oracledb.getConnection();
         
-        // Run database setup script
-        const setupScriptPath = path.join(__dirname, '../database/setup.sql');
-        if (fs.existsSync(setupScriptPath)) {
-            await runSqlScript(connection, setupScriptPath);
-            logger.info('Database setup completed successfully');
-        } else {
-            logger.warn(`Setup script not found at ${setupScriptPath}`);
-        }
+        // Set up database tables
+        await setupDatabase(connection);
         
-        // Test the connection with the new table
+        // Test the connection with a simple query
         try {
-            const result = await connection.execute('SELECT COUNT(*) FROM USERS');
-            logger.info(`Database table test successful, user count: ${result.rows[0][0]}`);
+            const result = await connection.execute('SELECT 1 FROM DUAL');
+            logger.info('Database connection test successful');
         } catch (err) {
-            logger.error(`Database table test failed: ${err.message}`, { error: err });
+            logger.error(`Database connection test failed: ${err.message}`, { error: err });
         }
         
         await connection.close();

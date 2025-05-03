@@ -67,7 +67,6 @@ BEGIN
   BEGIN
     :NEW.updated_at := CURRENT_TIMESTAMP;
   END;';
-  DBMS_OUTPUT.PUT_LINE('Trigger created successfully');
 EXCEPTION
   WHEN OTHERS THEN
     DBMS_OUTPUT.PUT_LINE('Error creating trigger: ' || SQLERRM);
