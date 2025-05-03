@@ -1,6 +1,28 @@
 -- Make sure we're connected to the PDB
 ALTER SESSION SET CONTAINER = FREEPDB1;
 
+-- Create application user/schema if it doesn't exist
+BEGIN
+   EXECUTE IMMEDIATE 'DROP USER app_user CASCADE';
+EXCEPTION
+   WHEN OTHERS THEN
+      IF SQLCODE != -1918 THEN -- ORA-01918: user does not exist
+         RAISE;
+      END IF;
+END;
+/
+
+-- Create a dedicated user for the application
+CREATE USER app_user IDENTIFIED BY "app_password"
+QUOTA UNLIMITED ON USERS;
+
+-- Grant necessary privileges
+GRANT CREATE SESSION, CREATE TABLE, CREATE VIEW, CREATE SEQUENCE, CREATE TRIGGER TO app_user;
+GRANT CREATE PROCEDURE TO app_user;
+
+-- Switch to the new schema for the remaining operations
+ALTER SESSION SET CURRENT_SCHEMA = app_user;
+
 -- Create users table if it doesn't exist
 BEGIN
    EXECUTE IMMEDIATE 'DROP TABLE users';

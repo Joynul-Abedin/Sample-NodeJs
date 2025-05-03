@@ -2,12 +2,12 @@ const oracledb = require('oracledb');
 const logger = require('../utils/logger');
 require('dotenv').config();
 
-// Database configuration with settings from the image
+// Database configuration with settings for the application user
 const dbConfig = {
-    user: process.env.DB_USER || 'sys',
-    password: process.env.DB_PASSWORD || 'password',
-    connectString: process.env.DB_CONNECT_STRING || 'localhost:1521/FREEPDB1',
-    privilege: oracledb.SYSDBA // Add SYSDBA privilege as shown in the image
+    user: process.env.DB_USER || 'app_user',
+    password: process.env.DB_PASSWORD || 'app_password',
+    connectString: process.env.DB_CONNECT_STRING || 'localhost:1521/FREEPDB1'
+    // Remove SYSDBA privilege as we're now using a regular user
 };
 
 // Initialize connection pool with configurable pool parameters

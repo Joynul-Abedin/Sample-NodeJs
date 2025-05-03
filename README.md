@@ -189,9 +189,11 @@ This project is licensed under the ISC License.
 
 ## Database Setup with Oracle SQL Developer Extension for VSCode
 
-If you have the Oracle SQL Developer Extension for VSCode, you can easily set up the database:
+There are two steps to set up the database:
 
-1. Open the VSCode extension and connect to your Oracle database with the following settings:
+### 1. Run the setup script as SYSDBA:
+
+1. Open the VSCode extension and connect to your Oracle database with the following SYSDBA settings:
    - Connection Type: Basic
    - Authentication Type: Default
    - Username: sys
@@ -201,7 +203,24 @@ If you have the Oracle SQL Developer Extension for VSCode, you can easily set up
    - Service name: FREEPDB1
    
 2. Open the `database/setup.sql` file in VSCode.
-3. Run the SQL script to create the table, trigger, index, sample data, and view.
+3. Run the SQL script to:
+   - Create a dedicated application user (app_user)
+   - Create the necessary tables, triggers, indexes
+   - Add sample data
+
+### 2. Connect your application to the app_user:
+
+Once you've run the setup script, your application will connect using:
+- Username: app_user
+- Password: app_password
+- Connect String: localhost:1521/FREEPDB1
+
+You can override these values in your .env file:
+```
+DB_USER=app_user
+DB_PASSWORD=app_password
+DB_CONNECT_STRING=localhost:1521/FREEPDB1
+```
 
 ### Database Schema:
 
