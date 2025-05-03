@@ -6,7 +6,7 @@ require('dotenv').config();
 const dbConfig = {
     user: process.env.DB_USER || 'system',
     password: process.env.DB_PASSWORD || 'oracle',
-    connectString: process.env.DB_CONNECT_STRING || 'localhost:1521/XE'
+    connectString: process.env.DB_CONNECT_STRING || 'localhost:1521/svc'
 };
 
 // Initialize connection pool with configurable pool parameters

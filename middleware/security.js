@@ -1,8 +1,8 @@
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
+const xssMiddleware = require('./xssMiddleware');
 
 // Rate limiting
 const limiter = rateLimit({
@@ -31,8 +31,8 @@ const setupSecurity = (app) => {
     // Helmet helps secure Express apps by setting HTTP response headers
     app.use(helmet());
     
-    // Prevent Cross-Site Scripting (XSS) attacks
-    app.use(xss());
+    // Prevent Cross-Site Scripting (XSS) attacks using custom middleware
+    app.use(xssMiddleware);
     
     // Prevent HTTP Parameter Pollution attacks
     app.use(hpp());

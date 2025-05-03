@@ -185,4 +185,42 @@ Logs are stored in the `logs` directory and include:
 
 ## License
 
-This project is licensed under the ISC License. 
+This project is licensed under the ISC License.
+
+## Database Setup with Oracle SQL Developer Extension for VSCode
+
+If you have the Oracle SQL Developer Extension for VSCode, you can easily set up the database:
+
+1. Open the VSCode extension and connect to your Oracle database.
+2. Open the `database/setup.sql` file in VSCode.
+3. Run the SQL script to create the table, trigger, index, sample data, and view.
+
+### Database Schema:
+
+```sql
+CREATE TABLE users (
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR2(100) NOT NULL,
+    email VARCHAR2(100) NOT NULL UNIQUE,
+    age NUMBER CHECK (age >= 0 AND age <= 120),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Testing with Postman
+
+A Postman collection and environment are included in the `postman` directory. To use them:
+
+1. Import `postman/Oracle_CRUD_API.postman_collection.json` into Postman.
+2. Import `postman/Oracle_API_Environment.postman_environment.json` into Postman.
+3. Select the "Oracle API Environment" environment.
+4. Start your application: `npm run dev`
+5. Run the requests in the collection to test each endpoint.
+
+### Automated Testing Flow:
+
+1. Run the "Health Check" request to make sure the API is up.
+2. Run the "Create User" request to add a new user.
+3. Save the returned user ID as a Postman environment variable.
+4. Use that ID to test the "Get User by ID", "Update User", and "Delete User" endpoints. 

@@ -75,8 +75,9 @@ const getAllUsers = async (req, res) => {
         
         // Fetch paginated users
         const result = await connection.execute(
-            'SELECT * FROM users ORDER BY id OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY',
-            { offset, limit }
+            'SELECT id, name, email, age, created_at, updated_at FROM users ORDER BY id OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY',
+            { offset, limit },
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
 
         // Set total count in headers
@@ -84,12 +85,7 @@ const getAllUsers = async (req, res) => {
         
         res.status(200).json({
             success: true,
-            data: result.rows.map(row => ({
-                id: row[0],
-                name: row[1],
-                email: row[2],
-                age: row[3]
-            })),
+            data: result.rows,
             pagination: {
                 page,
                 limit,
@@ -123,8 +119,9 @@ const getUserById = async (req, res) => {
         connection = await db.getConnection();
 
         const result = await connection.execute(
-            'SELECT * FROM users WHERE id = :id',
-            [id]
+            'SELECT id, name, email, age, created_at, updated_at FROM users WHERE id = :id',
+            [id],
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
 
         if (result.rows.length === 0) {
@@ -135,15 +132,9 @@ const getUserById = async (req, res) => {
             });
         }
 
-        const user = result.rows[0];
         res.status(200).json({
             success: true,
-            data: {
-                id: user[0],
-                name: user[1],
-                email: user[2],
-                age: user[3]
-            }
+            data: result.rows[0]
         });
     } catch (error) {
         logger.error(`Error fetching user: ${error.message}`, { error, params: req.params });
