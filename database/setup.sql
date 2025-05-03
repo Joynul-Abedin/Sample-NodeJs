@@ -1,3 +1,6 @@
+-- Make sure we're connected to the PDB
+ALTER SESSION SET CONTAINER = FREEPDB1;
+
 -- Create users table if it doesn't exist
 BEGIN
    EXECUTE IMMEDIATE 'DROP TABLE users';
@@ -51,4 +54,7 @@ SELECT
 FROM users;
 
 -- Verify the view works
-SELECT * FROM user_age_summary; 
+SELECT * FROM user_age_summary;
+
+-- Commit changes
+COMMIT; 
