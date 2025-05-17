@@ -32,6 +32,51 @@ const validateUserInput = [
     handleValidationErrors
 ];
 
+// Validate expense report creation/update input
+const validateExpenseInput = [
+    body('header')
+        .notEmpty().withMessage('Header information is required'),
+    body('header.report_header_id')
+        .notEmpty().withMessage('Report header ID is required')
+        .isNumeric().withMessage('Report header ID must be a number'),
+    body('header.employee_id')
+        .optional()
+        .isNumeric().withMessage('Employee ID must be a number'),
+    body('header.week_end_date')
+        .notEmpty().withMessage('Week end date is required')
+        .isISO8601().withMessage('Week end date must be a valid date'),
+    body('header.created_by')
+        .notEmpty().withMessage('Created by is required')
+        .isNumeric().withMessage('Created by must be a number'),
+    body('header.last_updated_by')
+        .notEmpty().withMessage('Last updated by is required')
+        .isNumeric().withMessage('Last updated by must be a number'),
+    body('header.vouchno')
+        .notEmpty().withMessage('Voucher number is required')
+        .isNumeric().withMessage('Voucher number must be a number'),
+    body('header.total')
+        .notEmpty().withMessage('Total is required')
+        .isNumeric().withMessage('Total must be a number'),
+    body('header.default_currency_code')
+        .notEmpty().withMessage('Default currency code is required')
+        .isLength({ max: 15 }).withMessage('Default currency code must be less than 15 characters'),
+    body('lines')
+        .optional()
+        .isArray().withMessage('Lines must be an array'),
+    body('lines.*.item_description')
+        .notEmpty().withMessage('Item description is required'),
+    body('lines.*.set_of_books_id')
+        .notEmpty().withMessage('Set of books ID is required')
+        .isNumeric().withMessage('Set of books ID must be a number'),
+    body('lines.*.amount')
+        .notEmpty().withMessage('Amount is required')
+        .isNumeric().withMessage('Amount must be a number'),
+    body('lines.*.currency_code')
+        .optional()
+        .isLength({ max: 15 }).withMessage('Currency code must be less than 15 characters'),
+    handleValidationErrors
+];
+
 // Validate ID parameter
 const validateIdParam = [
     param('id')
@@ -42,5 +87,6 @@ const validateIdParam = [
 
 module.exports = {
     validateUserInput,
-    validateIdParam
+    validateIdParam,
+    validateExpenseInput
 }; 

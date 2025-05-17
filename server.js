@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const db = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 const setupSecurity = require('./middleware/security');
 const logger = require('./utils/logger');
 require('dotenv').config();
@@ -37,6 +38,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/users', userRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // 404 Handler for unmatched routes
 app.use((req, res) => {
